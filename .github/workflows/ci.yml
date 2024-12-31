@@ -21,9 +21,10 @@ jobs:
 
       - name: Generate Xcode Project with Projucer
         run: |
-          cd ${{ github.workspace }}/GainPlugin  # Change directory to plugin folder
-          ./Projucer --set-global-search-paths  # Ensure global paths are set correctly
-          ./Projucer --resave GainPlugin.jucer  # Resave the project file to ensure it’s up to date
+          cd ${{ github.workspace }}/GainPlugin
+          ${{ github.workspace }}/JUCE/extras/Projucer/Projucer --set-global-search-paths
+          ${{ github.workspace }}/JUCE/extras/Projucer/Projucer --resave GainPlugin.jucer
+
 
       - name: Build Plugin with Xcode
         run: |
