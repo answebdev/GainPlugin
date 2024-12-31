@@ -18,6 +18,10 @@ jobs:
         run: |
           git clone --depth 1 --branch master https://github.com/juce-framework/JUCE.git ${{ github.workspace }}/JUCE
 
+      - name: Verify Projucer
+        run: |
+          ls ${{ github.workspace }}/JUCE/extras/Projucer/
+          ${{ github.workspace }}/JUCE/extras/Projucer/Projucer --version
 
       - name: Generate Xcode Project with Projucer
         run: |
@@ -25,6 +29,9 @@ jobs:
           ${{ github.workspace }}/JUCE/extras/Projucer/Projucer --set-global-search-paths
           ${{ github.workspace }}/JUCE/extras/Projucer/Projucer --resave GainPlugin.jucer
 
+      - name: Verify Generated Xcode Project
+        run: |
+          ls ${{ github.workspace }}/GainPlugin/Builds/MacOSX/
 
       - name: Build Plugin with Xcode
         run: |
@@ -35,6 +42,10 @@ jobs:
         run: |
           mkdir -p ${{ github.workspace }}/artifacts
           cp -R ${{ github.workspace }}/GainPlugin/Builds/MacOSX/build/Build/Products/Release/GainPlugin.vst3 ${{ github.workspace }}/artifacts/
+
+      - name: Verify Artifact Packaging
+        run: |
+          ls ${{ github.workspace }}/artifacts/
 
       - name: Upload VST3 Plugin as Artifact
         uses: actions/upload-artifact@v3
