@@ -3,10 +3,7 @@ name: Build JUCE Plugin for macOS
 on:
   push:
     branches:
-      - main  # Trigger the build on push to the main branch
-  pull_request:
-    branches:
-      - main  # Trigger the build on pull requests to the main branch
+      - main
 
 jobs:
   build:
@@ -22,10 +19,16 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        brew install juce # Install JUCE if necessary (this is just an example, adjust accordingly)
+        brew install juce  # Install JUCE if necessary (this is just an example)
 
     - name: Build Plugin for macOS
       run: |
         # Navigate to your project folder and build the plugin
-        cd path/to/your/juce/project
+        cd C:\Users\Adolf Schmuck\Desktop\Desktop\Web-Projects\GainPlugin
         ./Projucer --make MacOSX  # Build your project for macOS using JUCE
+
+    - name: Upload VST3 Plugin as Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: VST3Plugin
+        path: C:\Users\Adolf Schmuck\Desktop\Desktop\Web-Projects\GainPlugin\Builds\VisualStudio2022\x64\Release\VST3\GainPlugin.vst3\Contents\GainMacOS.vst3  # Adjust to the actual output path
