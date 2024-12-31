@@ -14,10 +14,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3  # Checkout repository code
 
-      - name: Install Dependencies
+      - name: Install JUCE
         run: |
-          brew install juce  # Install JUCE via Homebrew
-          brew install cmake ninja  # Install common build dependencies
+          git clone --depth 1 --branch master https://github.com/juce-framework/JUCE.git ${{ github.workspace }}/JUCE
+
 
       - name: Generate Xcode Project with Projucer
         run: |
