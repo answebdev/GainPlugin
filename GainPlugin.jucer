@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="ySIRnO" name="GainPlugin" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" companyName="Fun House Audio"
+              pluginFormats="buildAU,buildStandalone,buildVST3">
   <MAINGROUP id="tV7DIc" name="GainPlugin">
     <GROUP id="{73B5F0FF-A092-74AA-BE83-81469F0A4F26}" name="Source">
       <FILE id="emu0OD" name="PluginProcessor.cpp" compile="1" resource="0"
