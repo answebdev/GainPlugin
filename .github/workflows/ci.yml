@@ -31,8 +31,7 @@ jobs:
       - name: Build Projucer
         run: |
           cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX  # Navigate to Projucer build directory
-          # Update this line based on the correct scheme you find
-          xcodebuild -project Projucer.xcodeproj -scheme <correct-scheme-name> -configuration Release  # Build Projucer with correct scheme
+          xcodebuild -project Projucer.xcodeproj -scheme ProjucerApp -configuration Release  # Build Projucer with correct scheme (replace ProjucerApp with the correct scheme from the list)
 
       - name: Verify Projucer Binary
         run: |
