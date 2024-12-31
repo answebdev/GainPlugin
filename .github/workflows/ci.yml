@@ -3,32 +3,36 @@ name: Build JUCE Plugin for macOS
 on:
   push:
     branches:
-      - main
+      - main  # Trigger workflow on push to main branch
 
 jobs:
   build:
-    runs-on: macos-latest  # This uses the macOS runner
+    runs-on: macos-latest  # Use the macOS runner
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v2  # Check out the code from the repository
+      uses: actions/checkout@v2  # Checkout code from the repository
 
     - name: Set up Xcode
       run: |
-        sudo xcode-select -s /Applications/Xcode.app/Contents/Developer  # Make sure Xcode is set up
+        sudo xcode-select -s /Applications/Xcode.app/Contents/Developer  # Set Xcode as the active developer directory
 
     - name: Install Dependencies
       run: |
-        brew install juce  # Install JUCE if necessary (this is just an example)
+        brew install juce  # If necessary, install JUCE via Homebrew (not always required)
 
-    - name: Build Plugin for macOS
+    - name: Generate Xcode Project with Projucer
       run: |
-        # Navigate to your project folder and build the plugin
-        cd C:\Users\Adolf Schmuck\Desktop\Desktop\Web-Projects\GainPlugin
-        ./Projucer --make MacOSX  # Build your project for macOS using JUCE
+        cd /Users/Adolf Schmuck/Desktop/Desktop/Web-Projects/GainPlugin  # Use macOS-style path
+        ./Projucer --make Xcode  # Generate the Xcode project (assuming Projucer is installed)
+
+    - name: Build Plugin with Xcode
+      run: |
+        cd /path/to/your/juce/project/Builds/MacOSX  # Go to the generated Xcode build directory
+        xcodebuild -project YourPlugin.xcodeproj -scheme YourPlugin -configuration Release  # Build with xcodebuild
 
     - name: Upload VST3 Plugin as Artifact
       uses: actions/upload-artifact@v2
       with:
         name: VST3Plugin
-        path: C:\Users\Adolf Schmuck\Desktop\Desktop\Web-Projects\GainPlugin\Builds\VisualStudio2022\x64\Release\VST3\GainPlugin.vst3\Contents\GainMacOS.vst3  # Adjust to the actual output path
+        path: /Users/Adolf Schmuck/Desktop/Desktop/Web-Projects/GainPlugin/Builds/VisualStudio2022/x64/Release/VST3/GainPlugin.vst3/Contents/macOS/GainMacOS.vst3  # Correct macOS path to the built plugin
