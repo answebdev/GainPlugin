@@ -12,16 +12,16 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3  # Use the latest version of the checkout action
+        uses: actions/checkout@v3  # Checkout repository code
 
       - name: Install Dependencies
         run: |
           brew install juce  # Install JUCE via Homebrew
-          brew install cmake ninja  # Common dependencies for JUCE builds
+          brew install cmake ninja  # Install common build dependencies
 
       - name: Generate Xcode Project with Projucer
         run: |
-          cd ${{ github.workspace }}/GainPlugin  # Change directory to the plugin folder
+          cd ${{ github.workspace }}/GainPlugin  # Change directory to plugin folder
           ./Projucer --set-global-search-paths  # Ensure global paths are set correctly
           ./Projucer --resave GainPlugin.jucer  # Resave the project file to ensure it’s up to date
 
@@ -30,9 +30,26 @@ jobs:
           cd ${{ github.workspace }}/GainPlugin/Builds/MacOSX
           xcodebuild -project GainPlugin.xcodeproj -scheme GainPlugin -configuration Release -derivedDataPath build
 
+      - name: Package VST3 Plugin
+        run: |
+          mkdir -p ${{ github.workspace }}/artifacts
+          cp -R ${{ github.workspace }}/GainPlugin/Builds/MacOSX/build/Build/Products/Release/GainPlugin.vst3 ${{ github.workspace }}/artifacts/
+
       - name: Upload VST3 Plugin as Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: VST3Plugin
+          name: GainPlugin-macOS
           path: |
-            ${{ github.workspace }}/GainPlugin/Builds/MacOSX/build/Build/Products/Release/GainPlugin.vst3
+            ${{ github.workspace }}/artifacts/GainPlugin.vst3
+
+      - name: Create ZIP Archive for Download
+        run: |
+          cd ${{ github.workspace }}/artifacts
+          zip -r GainPlugin-macOS.zip GainPlugin.vst3
+
+      - name: Upload ZIP Archive
+        uses: actions/upload-artifact@v3
+        with:
+          name: GainPlugin-macOS-zip
+          path: |
+            ${{ github.workspace }}/artifacts/GainPlugin-macOS.zip
