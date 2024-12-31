@@ -3,73 +3,79 @@ name: Build JUCE Plugin for macOS
 on:
   push:
     branches:
-      - master
-  workflow_dispatch:
+      - master  # Trigger workflow on push to main branch
+  workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-latest  # Use the macOS runner
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  # Checkout repository code
 
       - name: Debug Directory Structure
         run: |
           echo "Workspace Directory:"
-          ls -R ${{ github.workspace }}
+          ls -R ${{ github.workspace }}  # List directory structure to verify paths
 
       - name: Install JUCE
         run: |
-          git clone --depth 1 --branch master https://github.com/juce-framework/JUCE.git ${{ github.workspace }}/JUCE
+          git clone --depth 1 --branch master https://github.com/juce-framework/JUCE.git ${{ github.workspace }}/JUCE  # Clone JUCE repo
+
+      - name: List Schemes in Projucer Project
+        run: |
+          cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX  # Go to Projucer build directory
+          xcodebuild -project Projucer.xcodeproj -list  # List the available schemes in the Projucer project
 
       - name: Build Projucer
         run: |
-          cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX
-          xcodebuild -project Projucer.xcodeproj -scheme Projucer -configuration Release
+          cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX  # Navigate to Projucer build directory
+          # Replace 'ProjucerApp' with the correct scheme name from the previous step
+          xcodebuild -project Projucer.xcodeproj -scheme ProjucerApp -configuration Release  # Build Projucer
 
       - name: Verify Projucer Binary
         run: |
-          ls ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/
+          ls ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/  # Verify if the Projucer binary is generated
 
       - name: Generate Xcode Project with Projucer
         run: |
-          cd ${{ github.workspace }}/GainPlugin
-          ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer
+          cd ${{ github.workspace }}/GainPlugin  # Change directory to GainPlugin
+          ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer  # Generate the Xcode project
 
       - name: Verify Generated Xcode Project
         run: |
-          ls ${{ github.workspace }}/GainPlugin/Builds/MacOSX/
+          ls ${{ github.workspace }}/GainPlugin/Builds/MacOSX/  # Verify that the Xcode project is generated
 
       - name: Build Plugin with Xcode
         run: |
-          cd ${{ github.workspace }}/GainPlugin/Builds/MacOSX
-          xcodebuild -project GainPlugin.xcodeproj -scheme GainPlugin -configuration Release -derivedDataPath build
+          cd ${{ github.workspace }}/GainPlugin/Builds/MacOSX  # Navigate to the Xcode build directory
+          xcodebuild -project GainPlugin.xcodeproj -scheme GainPlugin -configuration Release -derivedDataPath build  # Build the plugin
 
       - name: Package VST3 Plugin
         run: |
-          mkdir -p ${{ github.workspace }}/artifacts
-          cp -R ${{ github.workspace }}/GainPlugin/Builds/MacOSX/build/Build/Products/Release/GainPlugin.vst3 ${{ github.workspace }}/artifacts/
+          mkdir -p ${{ github.workspace }}/artifacts  # Create artifacts directory
+          cp -R ${{ github.workspace }}/GainPlugin/Builds/MacOSX/build/Build/Products/Release/GainPlugin.vst3 ${{ github.workspace }}/artifacts/  # Copy the built VST3
 
       - name: Verify Artifact Packaging
         run: |
-          ls ${{ github.workspace }}/artifacts/
+          ls ${{ github.workspace }}/artifacts/  # Verify that the VST3 plugin is in the artifacts folder
 
       - name: Upload VST3 Plugin as Artifact
         uses: actions/upload-artifact@v3
         with:
           name: GainPlugin-macOS
           path: |
-            ${{ github.workspace }}/artifacts/GainPlugin.vst3
+            ${{ github.workspace }}/artifacts/GainPlugin.vst3  # Upload the VST3 plugin
 
       - name: Create ZIP Archive for Download
         run: |
-          cd ${{ github.workspace }}/artifacts
-          zip -r GainPlugin-macOS.zip GainPlugin.vst3
+          cd ${{ github.workspace }}/artifacts  # Change directory to artifacts
+          zip -r GainPlugin-macOS.zip GainPlugin.vst3  # Create a zip archive
 
       - name: Upload ZIP Archive
         uses: actions/upload-artifact@v3
         with:
           name: GainPlugin-macOS-zip
           path: |
-            ${{ github.workspace }}/artifacts/GainPlugin-macOS.zip
+            ${{ github.workspace }}/artifacts/GainPlugin-macOS.zip  # Upload the zip archive
