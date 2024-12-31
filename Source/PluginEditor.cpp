@@ -30,7 +30,7 @@ void GainPluginAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.setColour (juce::Colours::white);
     g.setFont (juce::FontOptions (15.0f));
-    g.drawFittedText ("Fun House", getLocalBounds(), juce::Justification::centred, 1);
+    g.drawFittedText ("Fun House Labs", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void GainPluginAudioProcessorEditor::resized()
