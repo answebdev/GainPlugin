@@ -4,31 +4,35 @@ on:
   push:
     branches:
       - main  # Trigger workflow on push to main branch
+  workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
   build:
     runs-on: macos-latest  # Use the macOS runner
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v2  # Checkout code from the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3  # Use the latest version of the checkout action
 
-    - name: Install Dependencies (JUCE, if required)
-      run: |
-        brew install juce  # Install JUCE via Homebrew (you can remove this if JUCE is already in the repo)
+      - name: Install Dependencies
+        run: |
+          brew install juce  # Install JUCE via Homebrew
+          brew install cmake ninja  # Common dependencies for JUCE builds
 
-    - name: Generate Xcode Project with Projucer
-      run: |
-        cd ${{ github.workspace }}/GainPlugin  # Change directory to the correct repo path
-        ./Projucer --make Xcode  # Generate the Xcode project (assuming Projucer is installed)
+      - name: Generate Xcode Project with Projucer
+        run: |
+          cd ${{ github.workspace }}/GainPlugin  # Change directory to the plugin folder
+          ./Projucer --set-global-search-paths  # Ensure global paths are set correctly
+          ./Projucer --resave GainPlugin.jucer  # Resave the project file to ensure it’s up to date
 
-    - name: Build Plugin with Xcode
-      run: |
-        cd ${{ github.workspace }}/GainPlugin/Builds/MacOSX  # Go to the generated Xcode build directory
-        xcodebuild -project GainPlugin.xcodeproj -scheme GainPlugin -configuration Release  # Build with xcodebuild
+      - name: Build Plugin with Xcode
+        run: |
+          cd ${{ github.workspace }}/GainPlugin/Builds/MacOSX
+          xcodebuild -project GainPlugin.xcodeproj -scheme GainPlugin -configuration Release -derivedDataPath build
 
-    - name: Upload VST3 Plugin as Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: VST3Plugin
-        path: ${{ github.workspace }}/GainPlugin/Builds/MacOSX/Release/GainPlugin.vst3  # Correct path to the built plugin
+      - name: Upload VST3 Plugin as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: VST3Plugin
+          path: |
+            ${{ github.workspace }}/GainPlugin/Builds/MacOSX/build/Build/Products/Release/GainPlugin.vst3
