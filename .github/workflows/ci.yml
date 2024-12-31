@@ -26,13 +26,13 @@ jobs:
       - name: List Schemes in Projucer Project
         run: |
           cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX  # Go to Projucer build directory
-          xcodebuild -project Projucer.xcodeproj -list  # List the available schemes in the Projucer project
+          xcodebuild -project Projucer.xcodeproj -list  # List available schemes
 
       - name: Build Projucer
         run: |
           cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX  # Navigate to Projucer build directory
-          # Replace 'ProjucerApp' with the correct scheme name from the previous step
-          xcodebuild -project Projucer.xcodeproj -scheme ProjucerApp -configuration Release  # Build Projucer
+          # Update this line based on the correct scheme you find
+          xcodebuild -project Projucer.xcodeproj -scheme <correct-scheme-name> -configuration Release  # Build Projucer with correct scheme
 
       - name: Verify Projucer Binary
         run: |
