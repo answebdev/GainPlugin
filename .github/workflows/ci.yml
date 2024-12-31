@@ -11,6 +11,11 @@ jobs:
     runs-on: macos-latest  # Use the macOS runner
 
     steps:
+      - name: Debug Directory Structure
+        run: |
+          echo "Workspace Directory:"
+          ls -R ${{ github.workspace }}
+
       - name: Checkout Code
         uses: actions/checkout@v3  # Checkout repository code
 
@@ -36,9 +41,9 @@ jobs:
 
       - name: Generate Xcode Project with Projucer
         run: |
-          cd ${{ github.workspace }}/GainPlugin
-          ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --set-global-search-paths
-          ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer
+         cd ${{ github.workspace }}
+         ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --set-global-search-paths
+         ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer
 
       - name: Verify Generated Xcode Project
         run: |
@@ -46,7 +51,7 @@ jobs:
 
       - name: Build Plugin with Xcode
         run: |
-          cd ${{ github.workspace }}/GainPlugin/Builds/MacOSX
+          cd ${{ github.workspace }}/Builds/MacOSX
           xcodebuild -project GainPlugin.xcodeproj -scheme GainPlugin -configuration Release -derivedDataPath build
 
       - name: Package VST3 Plugin
