@@ -3,7 +3,7 @@ name: Build JUCE Plugin for macOS
 on:
   push:
     branches:
-      - master  # Trigger workflow on push to main branch
+      - main  # Trigger workflow on push to main branch
   workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
@@ -18,16 +18,20 @@ jobs:
         run: |
           git clone --depth 1 --branch master https://github.com/juce-framework/JUCE.git ${{ github.workspace }}/JUCE
 
-      - name: Verify Projucer
+      - name: Build Projucer
         run: |
-          ls ${{ github.workspace }}/JUCE/extras/Projucer/
-          ${{ github.workspace }}/JUCE/extras/Projucer/Projucer --version
+          cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX
+          xcodebuild -project Projucer.xcodeproj -scheme Projucer -configuration Release
+
+      - name: Verify Projucer Binary
+        run: |
+          ls ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/
 
       - name: Generate Xcode Project with Projucer
         run: |
           cd ${{ github.workspace }}/GainPlugin
-          ${{ github.workspace }}/JUCE/extras/Projucer/Projucer --set-global-search-paths
-          ${{ github.workspace }}/JUCE/extras/Projucer/Projucer --resave GainPlugin.jucer
+          ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --set-global-search-paths
+          ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer
 
       - name: Verify Generated Xcode Project
         run: |
