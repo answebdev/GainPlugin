@@ -41,9 +41,9 @@ jobs:
 
       - name: Generate Xcode Project with Projucer
         run: |
-         cd ${{ github.workspace }}
-         ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --set-global-search-paths
-         ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer
+          cd ${{ github.workspace }}/GainPlugin
+          ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer
+
 
       - name: Verify Generated Xcode Project
         run: |
