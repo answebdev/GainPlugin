@@ -3,7 +3,7 @@ name: Build JUCE Plugin for macOS
 on:
   push:
     branches:
-      - master  # Trigger workflow on push to main branch
+      - main  # Trigger workflow on push to main branch
   workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
@@ -18,10 +18,17 @@ jobs:
         run: |
           git clone --depth 1 --branch master https://github.com/juce-framework/JUCE.git ${{ github.workspace }}/JUCE
 
+      - name: List Available Schemes in Projucer Project
+        run: |
+          cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX
+          xcodebuild -list
+
       - name: Build Projucer
         run: |
           cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX
-          xcodebuild -project Projucer.xcodeproj -scheme Projucer -configuration Release
+          xcodebuild -project Projucer.xcodeproj -scheme ALL_BUILD -configuration Release || \
+          xcodebuild -project Projucer.xcodeproj -scheme Projucer_Standalone -configuration Release || \
+          xcodebuild -project Projucer.xcodeproj -configuration Release
 
       - name: Verify Projucer Binary
         run: |
