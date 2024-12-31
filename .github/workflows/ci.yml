@@ -3,37 +3,30 @@ name: Build JUCE Plugin for macOS
 on:
   push:
     branches:
-      - master  # Trigger workflow on push to main branch
-  workflow_dispatch:  # Allows manual triggering of the workflow
+      - master
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: macos-latest  # Use the macOS runner
+    runs-on: macos-latest
 
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
       - name: Debug Directory Structure
         run: |
           echo "Workspace Directory:"
           ls -R ${{ github.workspace }}
 
-      - name: Checkout Code
-        uses: actions/checkout@v3  # Checkout repository code
-
       - name: Install JUCE
         run: |
           git clone --depth 1 --branch master https://github.com/juce-framework/JUCE.git ${{ github.workspace }}/JUCE
 
-      - name: List Available Schemes in Projucer Project
-        run: |
-          cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX
-          xcodebuild -list
-
       - name: Build Projucer
         run: |
           cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX
-          xcodebuild -project Projucer.xcodeproj -scheme ALL_BUILD -configuration Release || \
-          xcodebuild -project Projucer.xcodeproj -scheme Projucer_Standalone -configuration Release || \
-          xcodebuild -project Projucer.xcodeproj -configuration Release
+          xcodebuild -project Projucer.xcodeproj -scheme Projucer -configuration Release
 
       - name: Verify Projucer Binary
         run: |
@@ -44,14 +37,13 @@ jobs:
           cd ${{ github.workspace }}/GainPlugin
           ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer
 
-
       - name: Verify Generated Xcode Project
         run: |
           ls ${{ github.workspace }}/GainPlugin/Builds/MacOSX/
 
       - name: Build Plugin with Xcode
         run: |
-          cd ${{ github.workspace }}/Builds/MacOSX
+          cd ${{ github.workspace }}/GainPlugin/Builds/MacOSX
           xcodebuild -project GainPlugin.xcodeproj -scheme GainPlugin -configuration Release -derivedDataPath build
 
       - name: Package VST3 Plugin
