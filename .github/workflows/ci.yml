@@ -1,0 +1,31 @@
+name: Build JUCE Plugin for macOS
+
+on:
+  push:
+    branches:
+      - main  # Trigger the build on push to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger the build on pull requests to the main branch
+
+jobs:
+  build:
+    runs-on: macos-latest  # This uses the macOS runner
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2  # Check out the code from the repository
+
+    - name: Set up Xcode
+      run: |
+        sudo xcode-select -s /Applications/Xcode.app/Contents/Developer  # Make sure Xcode is set up
+
+    - name: Install Dependencies
+      run: |
+        brew install juce # Install JUCE if necessary (this is just an example, adjust accordingly)
+
+    - name: Build Plugin for macOS
+      run: |
+        # Navigate to your project folder and build the plugin
+        cd path/to/your/juce/project
+        ./Projucer --make MacOSX  # Build your project for macOS using JUCE
