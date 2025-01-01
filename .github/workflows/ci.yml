@@ -32,11 +32,18 @@ jobs:
         # Install VST3 SDK (use the VST3_SDK folder in the root of your project)
         echo "Using VST3 SDK from the repository root: $GITHUB_WORKSPACE/VST3_SDK"
 
+    - name: Clone JUCE to get Projucer
+      run: |
+        # Clone JUCE to get Projucer
+        if [ ! -d "$HOME/juce" ]; then
+          git clone --branch master https://github.com/juce-framework/JUCE.git $HOME/juce
+        fi
+
     - name: Generate Xcode project using Projucer
       run: |
         cd "$GITHUB_WORKSPACE"
         # Run Projucer to generate the Xcode project from the .jucer file
-        "$GITHUB_WORKSPACE/Projucer/Projucer.app/Contents/MacOS/Projucer" --resave "$GITHUB_WORKSPACE/GainPlugin.jucer"
+        "$HOME/juce/extras/Projucer/Projucer.app/Contents/MacOS/Projucer" --resave "$GITHUB_WORKSPACE/GainPlugin.jucer"
     
     - name: Build VST3 Plugin using Xcode
       run: |
