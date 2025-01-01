@@ -29,20 +29,20 @@ jobs:
 
       - name: Display contents of GainPlugin.jucer
         run: |
-          cat ${{ github.workspace }}/GainPlugin/GainPlugin.jucer  # Display the .jucer file content
+          cat ${{ github.workspace }}/GainPlugin.jucer  # Correct path to the .jucer file
 
       - name: Verify JUCE modules directory exists
         run: |
-          ls -l ${{ github.workspace }}/JUCE/modules  # Verify JUCE modules are in the expected location
+         ls -l ${{ github.workspace }}/JUCE/modules  # Verify JUCE modules are in the expected location
 
       - name: Update JUCE Module Paths in .jucer File
         run: |
-          sed -i '' 's|<module-path>|${{ github.workspace }}/JUCE/modules|' ${{ github.workspace }}/GainPlugin.jucer  # Update paths to JUCE modules
+         sed -i '' 's|<module-path>|${{ github.workspace }}/JUCE/modules|' ${{ github.workspace }}/GainPlugin.jucer  # Update paths to JUCE modules
 
       - name: Generate Xcode Project with Projucer
         run: |
-          cd ${{ github.workspace }}  # Navigate to root directory (where GainPlugin.jucer is)
-          ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer  # Resave the jucer file
+         cd ${{ github.workspace }}  # Navigate to root directory (where GainPlugin.jucer is)
+         ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer  # Resave the jucer file
 
       - name: Verify Generated Xcode Project
         run: |
