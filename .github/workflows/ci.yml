@@ -21,42 +21,54 @@ jobs:
       - name: Build Projucer
         run: |
           cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX  # Navigate to Projucer build directory
-          xcodebuild -project Projucer.xcodeproj -scheme "Projucer - App" -configuration Release CONFIGURATION_BUILD_DIR=${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release
+          xcodebuild -project Projucer.xcodeproj -scheme "Projucer - App" -configuration Release  # Build Projucer
 
       - name: Verify Projucer Binary
         run: |
-          ls -l ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release
+          ls -l ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/  # Verify Projucer binary
 
       - name: Display contents of GainPlugin.jucer
         run: |
-          cat ${{ github.workspace }}/GainPlugin.jucer  # Correct path to the .jucer file
+          cat ${{ github.workspace }}/GainPlugin.jucer  # Show contents of .jucer file for validation
 
       - name: Verify JUCE modules directory exists
         run: |
-         ls -l ${{ github.workspace }}/JUCE/modules  # Verify JUCE modules are in the expected location
+          ls -l ${{ github.workspace }}/JUCE/modules  # Verify JUCE modules directory exists
 
+      # Step 1: Verify placeholder in .jucer file
+      - name: Display GainPlugin.jucer Module Paths
+        run: |
+          grep 'modulePath' ${{ github.workspace }}/GainPlugin.jucer || echo "No modulePath found"
+
+      # Step 2: Update JUCE Module Paths
       - name: Update JUCE Module Paths in .jucer File
         run: |
-         sed -i '' 's|<module-path>|${{ github.workspace }}/JUCE/modules|' ${{ github.workspace }}/GainPlugin.jucer  # Update paths to JUCE modules
+          sed -i '' 's|<module-path>|${{ github.workspace }}/JUCE/modules|g' ${{ github.workspace }}/GainPlugin.jucer
 
+      # Step 3: Verify updated paths
+      - name: Verify Updated Module Paths in GainPlugin.jucer
+        run: |
+          grep 'modulePath' ${{ github.workspace }}/GainPlugin.jucer
+
+      # Step 4: Generate Xcode Project with Projucer
       - name: Generate Xcode Project with Projucer
         run: |
-         cd ${{ github.workspace }}  # Navigate to root directory (where GainPlugin.jucer is)
-         ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer  # Resave the jucer file
+          cd ${{ github.workspace }}
+          ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer
 
       - name: Verify Generated Xcode Project
         run: |
-          ls ${{ github.workspace }}/GainPlugin/Builds/MacOSX/  # Verify Xcode project was generated
+          ls ${{ github.workspace }}/GainPlugin/Builds/MacOSX/  # Verify Xcode project generation
 
       - name: Build Plugin with Xcode
         run: |
-          cd ${{ github.workspace }}/GainPlugin/Builds/MacOSX  # Go to the generated Xcode build directory
-          xcodebuild -project GainPlugin.xcodeproj -scheme GainPlugin -configuration Release -derivedDataPath build  # Build the plugin
+          cd ${{ github.workspace }}/GainPlugin/Builds/MacOSX
+          xcodebuild -project GainPlugin.xcodeproj -scheme GainPlugin -configuration Release -derivedDataPath build
 
       - name: Package VST3 Plugin
         run: |
-          mkdir -p ${{ github.workspace }}/artifacts  # Create artifacts directory
-          cp -R ${{ github.workspace }}/GainPlugin/Builds/MacOSX/build/Build/Products/Release/GainPlugin.vst3 ${{ github.workspace }}/artifacts/  # Copy VST3 plugin to artifacts
+          mkdir -p ${{ github.workspace }}/artifacts
+          cp -R ${{ github.workspace }}/GainPlugin/Builds/MacOSX/build/Build/Products/Release/GainPlugin.vst3 ${{ github.workspace }}/artifacts/
 
       - name: Verify Artifact Packaging
         run: |
@@ -71,12 +83,12 @@ jobs:
 
       - name: Create ZIP Archive for Download
         run: |
-          cd ${{ github.workspace }}/artifacts  # Go to the artifacts directory
-          zip -r GainPlugin-macOS.zip GainPlugin.vst3  # Create a ZIP file
+          cd ${{ github.workspace }}/artifacts
+          zip -r GainPlugin-macOS.zip GainPlugin.vst3
 
       - name: Upload ZIP Archive
         uses: actions/upload-artifact@v3
         with:
           name: GainPlugin-macOS-zip
           path: |
-            ${{ github.workspace }}/artifacts/GainPlugin-macOS.zip  # Upload ZIP file as artifact
+            ${{ github.workspace }}/artifacts/GainPlugin-macOS.zip
