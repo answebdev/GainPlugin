@@ -1,98 +1,66 @@
-name: Build JUCE Plugin for macOS
+name: CI Build for GainPlugin
 
 on:
   push:
     branches:
-      - master  # Trigger workflow on push to the master branch
-  workflow_dispatch:  # Allows manual triggering of the workflow
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
-    runs-on: macos-latest  # Use the macOS runner
+    runs-on: macos-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3  # Checkout repository code
+      # Step 1: Checkout Repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      - name: Install JUCE
-        run: |
-          git clone --depth 1 --branch master https://github.com/juce-framework/JUCE.git ${{ github.workspace }}/JUCE
-
-      - name: Build Projucer
-        run: |
-          cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX  # Navigate to Projucer build directory
-          xcodebuild -project Projucer.xcodeproj -scheme "Projucer - App" -configuration Release  # Build Projucer
-
+      # Step 2: Verify Projucer Binary Exists
       - name: Verify Projucer Binary
         run: |
-          ls ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/  # Verify Projucer was built
+          ls -l ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release
 
-      # Step 1: Verify GainPlugin.jucer Exists
-      - name: Verify GainPlugin.jucer Exists
-        run: |
-          ls -l ${{ github.workspace }}/GainPlugin.jucer  # Ensure the .jucer file exists
-
-      # Step 2: Update JUCE Module Paths in GainPlugin.jucer
+      # Step 3: Update JUCE Module Paths in .jucer File
       - name: Update JUCE Module Paths in .jucer File
         run: |
-          sed -i '' 's|<module-path>|${{ github.workspace }}/JUCE/modules|' ${{ github.workspace }}/GainPlugin.jucer  # Update paths to JUCE modules
+          sed -i '' 's|<MODULEPATH id="juce_audio_basics" path=".*"/>|<MODULEPATH id="juce_audio_basics" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
+          sed -i '' 's|<MODULEPATH id="juce_audio_devices" path=".*"/>|<MODULEPATH id="juce_audio_devices" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
+          sed -i '' 's|<MODULEPATH id="juce_audio_formats" path=".*"/>|<MODULEPATH id="juce_audio_formats" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
+          sed -i '' 's|<MODULEPATH id="juce_audio_plugin_client" path=".*"/>|<MODULEPATH id="juce_audio_plugin_client" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
+          sed -i '' 's|<MODULEPATH id="juce_audio_processors" path=".*"/>|<MODULEPATH id="juce_audio_processors" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
+          sed -i '' 's|<MODULEPATH id="juce_audio_utils" path=".*"/>|<MODULEPATH id="juce_audio_utils" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
+          sed -i '' 's|<MODULEPATH id="juce_core" path=".*"/>|<MODULEPATH id="juce_core" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
+          sed -i '' 's|<MODULEPATH id="juce_data_structures" path=".*"/>|<MODULEPATH id="juce_data_structures" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
+          sed -i '' 's|<MODULEPATH id="juce_events" path=".*"/>|<MODULEPATH id="juce_events" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
+          sed -i '' 's|<MODULEPATH id="juce_graphics" path=".*"/>|<MODULEPATH id="juce_graphics" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
+          sed -i '' 's|<MODULEPATH id="juce_gui_basics" path=".*"/>|<MODULEPATH id="juce_gui_basics" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
+          sed -i '' 's|<MODULEPATH id="juce_gui_extra" path=".*"/>|<MODULEPATH id="juce_gui_extra" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
 
-      # Step 3: Display GainPlugin.jucer Contents After sed Update
+      # Step 4: Display GainPlugin.jucer Contents After sed Update
       - name: Display GainPlugin.jucer Contents After sed Update
         run: |
           cat ${{ github.workspace }}/GainPlugin.jucer || echo "Failed to read GainPlugin.jucer"
 
-      # Step 4: Verify Updated Module Paths in GainPlugin.jucer
+      # Step 5: Verify Updated Module Paths in GainPlugin.jucer
       - name: Verify Updated Module Paths in GainPlugin.jucer
         run: |
           grep 'modulePath' ${{ github.workspace }}/GainPlugin.jucer || echo "No modulePath found after sed update"
 
-      # Step 5: Generate Xcode Project with Projucer
+      # Step 6: Generate Xcode Project with Projucer
       - name: Generate Xcode Project with Projucer
         run: |
-          cd ${{ github.workspace }}  # Navigate to root directory
+          cd ${{ github.workspace }}
           ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer
 
-      # Step 6: Verify Generated Xcode Project
-      - name: Verify Generated Xcode Project
+      # Step 7: Build Project using xcodebuild
+      - name: Build Project using xcodebuild
         run: |
-          ls ${{ github.workspace }}/GainPlugin/Builds/MacOSX/  # Verify Xcode project was generated
+          cd ${{ github.workspace }}/Builds/MacOSX
+          xcodebuild -project GainPlugin.xcodeproj -configuration Release -scheme GainPlugin
 
-      # Step 7: Build Plugin with Xcode
-      - name: Build Plugin with Xcode
+      # Step 8: Verify Build Output
+      - name: Verify Build Output
         run: |
-          cd ${{ github.workspace }}/GainPlugin/Builds/MacOSX  # Go to the Xcode build directory
-          xcodebuild -project GainPlugin.xcodeproj -scheme GainPlugin -configuration Release -derivedDataPath build
-
-      # Step 8: Package VST3 Plugin
-      - name: Package VST3 Plugin
-        run: |
-          mkdir -p ${{ github.workspace }}/artifacts  # Create artifacts directory
-          cp -R ${{ github.workspace }}/GainPlugin/Builds/MacOSX/build/Build/Products/Release/GainPlugin.vst3 ${{ github.workspace }}/artifacts/
-
-      # Step 9: Verify Artifact Packaging
-      - name: Verify Artifact Packaging
-        run: |
-          ls ${{ github.workspace }}/artifacts/  # Verify VST3 was copied
-
-      # Step 10: Upload VST3 Plugin as Artifact
-      - name: Upload VST3 Plugin as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: GainPlugin-macOS
-          path: |
-            ${{ github.workspace }}/artifacts/GainPlugin.vst3
-
-      # Step 11: Create ZIP Archive for Download
-      - name: Create ZIP Archive for Download
-        run: |
-          cd ${{ github.workspace }}/artifacts  # Go to the artifacts directory
-          zip -r GainPlugin-macOS.zip GainPlugin.vst3
-
-      # Step 12: Upload ZIP Archive
-      - name: Upload ZIP Archive
-        uses: actions/upload-artifact@v3
-        with:
-          name: GainPlugin-macOS-zip
-          path: |
-            ${{ github.workspace }}/artifacts/GainPlugin-macOS.zip
+          ls -l ${{ github.workspace }}/Builds/MacOSX/build/Release
