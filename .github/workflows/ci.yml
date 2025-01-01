@@ -36,7 +36,7 @@ jobs:
       run: |
         cd "$GITHUB_WORKSPACE"
         # Run Projucer to generate the Xcode project from the .jucer file
-        "$GITHUB_WORKSPACE/Projucer" --resave "$GITHUB_WORKSPACE/GainPlugin.jucer"
+        "$GITHUB_WORKSPACE/Projucer/Projucer.app/Contents/MacOS/Projucer" --resave "$GITHUB_WORKSPACE/GainPlugin.jucer"
     
     - name: Build VST3 Plugin using Xcode
       run: |
