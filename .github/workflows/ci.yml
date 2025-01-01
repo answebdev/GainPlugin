@@ -34,13 +34,15 @@ jobs:
 
     - name: Clone JUCE to get Projucer
       run: |
-        # Clone JUCE to get Projucer
+        # Clone JUCE to get Projucer if it's not already cloned
         if [ ! -d "$HOME/juce" ]; then
           git clone --branch master https://github.com/juce-framework/JUCE.git $HOME/juce
         fi
 
-        # Check if Projucer exists at the expected path
-        if [ ! -f "$HOME/juce/extras/Projucer/Projucer.app/Contents/MacOS/Projucer" ]; then
+    - name: Check if Projucer exists
+      run: |
+        # Check if Projucer exists at the expected location
+        if [ ! -f "$GITHUB_WORKSPACE/Tools/Projucer/Projucer.app/Contents/MacOS/Projucer" ]; then
           echo "Projucer was not found at the expected location!"
           exit 1
         else
@@ -51,7 +53,7 @@ jobs:
       run: |
         cd "$GITHUB_WORKSPACE"
         # Run Projucer to generate the Xcode project from the .jucer file
-        "$HOME/juce/extras/Projucer/Projucer.app/Contents/MacOS/Projucer" --resave "$GITHUB_WORKSPACE/GainPlugin.jucer"
+        "$GITHUB_WORKSPACE/Tools/Projucer/Projucer.app/Contents/MacOS/Projucer" --resave "$GITHUB_WORKSPACE/GainPlugin.jucer"
     
     - name: Build VST3 Plugin using Xcode
       run: |
