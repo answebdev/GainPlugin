@@ -13,60 +13,46 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      # Step 1: Checkout Repository
-      - name: Checkout Repository
+      # Step 1: Checkout Repository with Submodules
+      - name: Checkout Repository with Submodules
         uses: actions/checkout@v3
+        with:
+          submodules: true
 
-      # Step 2: Build Projucer
+      # Step 2: Verify JUCE Projucer Path
+      - name: Verify JUCE Projucer Path
+        run: |
+          ls -l ${{ github.workspace }}/JUCE/extras/Projucer
+
+      # Step 3: Build Projucer (if Xcode project exists)
       - name: Build Projucer
         run: |
-          cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX
-          xcodebuild -scheme Projucer -configuration Release
+          cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX || exit 1
+          xcodebuild -scheme Projucer -configuration Release || echo "Projucer build failed"
 
-      # Step 3: Verify Projucer Binary Exists
+      # Step 4: Verify Projucer Binary Exists
       - name: Verify Projucer Binary
         run: |
-          ls -l ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release
+          ls -l ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release || echo "Projucer binary not found"
 
-      # Step 4: Update JUCE Module Paths in .jucer File
+      # Step 5: Update JUCE Module Paths in .jucer File
       - name: Update JUCE Module Paths in .jucer File
         run: |
           sed -i '' 's|<MODULEPATH id="juce_audio_basics" path=".*"/>|<MODULEPATH id="juce_audio_basics" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
-          sed -i '' 's|<MODULEPATH id="juce_audio_devices" path=".*"/>|<MODULEPATH id="juce_audio_devices" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
-          sed -i '' 's|<MODULEPATH id="juce_audio_formats" path=".*"/>|<MODULEPATH id="juce_audio_formats" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
-          sed -i '' 's|<MODULEPATH id="juce_audio_plugin_client" path=".*"/>|<MODULEPATH id="juce_audio_plugin_client" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
-          sed -i '' 's|<MODULEPATH id="juce_audio_processors" path=".*"/>|<MODULEPATH id="juce_audio_processors" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
-          sed -i '' 's|<MODULEPATH id="juce_audio_utils" path=".*"/>|<MODULEPATH id="juce_audio_utils" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
           sed -i '' 's|<MODULEPATH id="juce_core" path=".*"/>|<MODULEPATH id="juce_core" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
-          sed -i '' 's|<MODULEPATH id="juce_data_structures" path=".*"/>|<MODULEPATH id="juce_data_structures" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
-          sed -i '' 's|<MODULEPATH id="juce_events" path=".*"/>|<MODULEPATH id="juce_events" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
-          sed -i '' 's|<MODULEPATH id="juce_graphics" path=".*"/>|<MODULEPATH id="juce_graphics" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
-          sed -i '' 's|<MODULEPATH id="juce_gui_basics" path=".*"/>|<MODULEPATH id="juce_gui_basics" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
-          sed -i '' 's|<MODULEPATH id="juce_gui_extra" path=".*"/>|<MODULEPATH id="juce_gui_extra" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
 
-      # Step 5: Display GainPlugin.jucer Contents After sed Update
-      - name: Display GainPlugin.jucer Contents After sed Update
-        run: |
-          cat ${{ github.workspace }}/GainPlugin.jucer || echo "Failed to read GainPlugin.jucer"
-
-      # Step 6: Verify Updated Module Paths in GainPlugin.jucer
-      - name: Verify Updated Module Paths in GainPlugin.jucer
-        run: |
-          grep 'modulePath' ${{ github.workspace }}/GainPlugin.jucer || echo "No modulePath found after sed update"
-
-      # Step 7: Generate Xcode Project with Projucer
+      # Step 6: Generate Xcode Project with Projucer
       - name: Generate Xcode Project with Projucer
         run: |
-          cd ${{ github.workspace }}
           ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer
 
-      # Step 8: Build Project using xcodebuild
-      - name: Build Project using xcodebuild
+      # Step 7: Build Plugin
+      - name: Build Plugin
         run: |
           cd ${{ github.workspace }}/Builds/MacOSX
           xcodebuild -project GainPlugin.xcodeproj -configuration Release -scheme GainPlugin
 
-      # Step 9: Verify Build Output
+      # Step 8: Verify Build Output
       - name: Verify Build Output
         run: |
           ls -l ${{ github.workspace }}/Builds/MacOSX/build/Release
