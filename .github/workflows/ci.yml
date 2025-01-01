@@ -1,4 +1,4 @@
-name: CI Build for GainPlugin
+name: Build VST3 Plugin for macOS
 
 on:
   push:
@@ -10,51 +10,52 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
-
+    runs-on: macos-latest  # Use macOS runner for building on macOS
+    
     steps:
-      # Step 1: Checkout Repository with Submodules
-      - name: Checkout Repository with Submodules
-        uses: actions/checkout@v3
-        with:
-          submodules: true
+    - name: Checkout repository
+      uses: actions/checkout@v3  # Checkout the repository to access the code
+    
+    - name: Install dependencies (Homebrew and JUCE)
+      run: |
+        # Install Homebrew if it's not installed
+        if ! command -v brew &> /dev/null
+        then
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        fi
+        
+        # Install JUCE (if not included in the repo)
+        if [ ! -d "$HOME/juce" ]; then
+          git clone --branch master https://github.com/juce-framework/JUCE.git $HOME/juce
+        fi
+        
+        # Install VST3 SDK (adjust to your own SDK path or clone it)
+        if [ ! -d "$HOME/vst3sdk" ]; then
+          git clone --branch develop https://github.com/steinbergmedia/vst3sdk.git $HOME/vst3sdk
+        fi
 
-      # Step 2: Verify JUCE Projucer Path
-      - name: Verify JUCE Projucer Path
-        run: |
-          ls -l ${{ github.workspace }}/JUCE/extras/Projucer
+    - name: Install Projucer (if not included)
+      run: |
+        # If Projucer is not included in the repository, download it
+        if [ ! -d "$HOME/Projucer" ]; then
+          git clone --branch master https://github.com/juce-framework/Projucer.git $HOME/Projucer
+        fi
 
-      # Step 3: Download Pre-Built Projucer Binary
-      - name: Download Pre-Built Projucer
-        run: |
-         mkdir -p ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release
-         curl -L -o ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app.zip https://github.com/juce-framework/JUCE/releases/download/7.0.5/Projucer_macOS.zip
-         unzip ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app.zip -d ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/
-         chmod +x ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer
+    - name: Generate Xcode project using Projucer
+      run: |
+        cd "$GITHUB_WORKSPACE"
+        # Run Projucer to generate the Xcode project from the .jucer file
+        "$HOME/Projucer/Projucer" --resave "$GITHUB_WORKSPACE/GainPlugin.jucer"
+    
+    - name: Build VST3 Plugin using Xcode
+      run: |
+        cd "$GITHUB_WORKSPACE/build"
+        # Build the plugin using Xcode CLI
+        xcodebuild -project "GainPlugin.xcodeproj" -scheme "GainPlugin" -configuration Release
 
-      # Step 4: Verify Projucer Binary Exists
-      - name: Verify Projucer Binary
-        run: |
-          ls -l ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release || echo "Projucer binary not found"
+    - name: Upload built VST3 plugin
+      uses: actions/upload-artifact@v3
+      with:
+        name: gainplugin-vst3
+        path: "$GITHUB_WORKSPACE/build/Release/GainPlugin.vst3"
 
-      # Step 5: Update JUCE Module Paths in .jucer File
-      - name: Update JUCE Module Paths in .jucer File
-        run: |
-          sed -i '' 's|<MODULEPATH id="juce_audio_basics" path=".*"/>|<MODULEPATH id="juce_audio_basics" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
-          sed -i '' 's|<MODULEPATH id="juce_core" path=".*"/>|<MODULEPATH id="juce_core" path="${{ github.workspace }}/JUCE/modules"/>|g' ${{ github.workspace }}/GainPlugin.jucer
-
-      # Step 6: Generate Xcode Project with Projucer
-      - name: Generate Xcode Project with Projucer
-        run: |
-          ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer
-
-      # Step 7: Build Plugin
-      - name: Build Plugin
-        run: |
-          cd ${{ github.workspace }}/Builds/MacOSX
-          xcodebuild -project GainPlugin.xcodeproj -configuration Release -scheme GainPlugin
-
-      # Step 8: Verify Build Output
-      - name: Verify Build Output
-        run: |
-          ls -l ${{ github.workspace }}/Builds/MacOSX/build/Release
