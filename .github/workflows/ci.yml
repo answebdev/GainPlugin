@@ -21,11 +21,11 @@ jobs:
       - name: Build Projucer
         run: |
           cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX  # Navigate to Projucer build directory
-          xcodebuild -project Projucer.xcodeproj -scheme "Projucer - App" -configuration Release  # Use the correct scheme name
+          xcodebuild -project Projucer.xcodeproj -scheme "Projucer - App" -configuration Release CONFIGURATION_BUILD_DIR=${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release
 
       - name: Verify Projucer Binary
         run: |
-          ls ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/  # Verify Projucer was built
+          ls -l ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release
 
       - name: Display contents of GainPlugin.jucer
         run: |
@@ -42,7 +42,7 @@ jobs:
       - name: Generate Xcode Project with Projucer
         run: |
          cd ${{ github.workspace }}  # Navigate to root directory (where GainPlugin.jucer is)
-         ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/Projucer.xcodeproj/project.pbxproj --resave GainPlugin.jucer  # Resave the jucer file
+         ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer  # Resave the jucer file
 
       - name: Verify Generated Xcode Project
         run: |
