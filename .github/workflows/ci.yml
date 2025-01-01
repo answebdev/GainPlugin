@@ -29,7 +29,7 @@ jobs:
 
       - name: Update JUCE Module Paths in .jucer File
         run: |
-          sed -i '' 's|<module-path>|${{ github.workspace }}/JUCE/modules|' ${{ github.workspace }}/GainPlugin.jucer  # Update paths to JUCE modules
+          sed -i '' 's|<module-path>|${{ github.workspace }}/JUCE/modules|' ${{ github.workspace }}/GainPlugin/GainPlugin.jucer  # Update paths to JUCE modules
 
       - name: Generate Xcode Project with Projucer
         run: |
