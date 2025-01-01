@@ -30,8 +30,7 @@ jobs:
       - name: Generate Xcode Project with Projucer
         run: |
           cd ${{ github.workspace }}  # Navigate to root directory (where GainPlugin.jucer is)
-          ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --set-global-search-paths
-          ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer
+          ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer --resave GainPlugin.jucer  # Removed the unnecessary --set-global-search-paths
 
       - name: Verify Generated Xcode Project
         run: |
