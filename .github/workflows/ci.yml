@@ -42,7 +42,7 @@ jobs:
       - name: Generate Xcode Project with Projucer
         run: |
          cd ${{ github.workspace }}  # Navigate to root directory (where GainPlugin.jucer is)
-         ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/Projucer.xcodeproj/project --resave GainPlugin.jucer  # Resave the jucer file
+         ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/Projucer.xcodeproj/project.pbxproj --resave GainPlugin.jucer  # Resave the jucer file
 
       - name: Verify Generated Xcode Project
         run: |
