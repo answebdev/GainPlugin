@@ -24,11 +24,13 @@ jobs:
         run: |
           ls -l ${{ github.workspace }}/JUCE/extras/Projucer
 
-      # Step 3: Build Projucer (if Xcode project exists)
-      - name: Build Projucer
+      # Step 3: Download Pre-Built Projucer Binary
+      - name: Download Pre-Built Projucer
         run: |
-          cd ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX || exit 1
-          xcodebuild -scheme Projucer -configuration Release || echo "Projucer build failed"
+         mkdir -p ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release
+         curl -L -o ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app.zip https://github.com/juce-framework/JUCE/releases/download/7.0.5/Projucer_macOS.zip
+         unzip ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app.zip -d ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/
+         chmod +x ${{ github.workspace }}/JUCE/extras/Projucer/Builds/MacOSX/build/Release/Projucer.app/Contents/MacOS/Projucer
 
       # Step 4: Verify Projucer Binary Exists
       - name: Verify Projucer Binary
