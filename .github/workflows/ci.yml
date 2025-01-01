@@ -22,7 +22,7 @@ jobs:
       # Step 2: Verify JUCE Projucer Path
       - name: Verify JUCE Projucer Path
         run: |
-          ls -l ${{ github.workspace }}/JUCE/extras/Projucer/Projucer.jucer
+          ls -l ${{ github.workspace }}/JUCE/extras/Projucer
 
       # Step 3: Download Pre-Built Projucer Binary
       - name: Download Pre-Built Projucer
