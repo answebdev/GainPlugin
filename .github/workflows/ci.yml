@@ -67,11 +67,11 @@ jobs:
         ls -R "$GITHUB_WORKSPACE"  # Listing top-level files and subdirectories
         ls -R "$GITHUB_WORKSPACE/Builds/MacOSX"  # Listing contents of Builds/MacOSX
         # Check the full path to ensure the project exists
-        if [ ! -f "$GITHUB_WORKSPACE/Builds/MacOSX/GainPlugin.xcodeproj" ]; then
+        if [ -f "$GITHUB_WORKSPACE/Builds/MacOSX/GainPlugin.xcodeproj/project.pbxproj" ]; then
+          echo "Xcode project found successfully."
+        else
           echo "Error: Xcode project GainPlugin.xcodeproj not found!"
           exit 1
-        else
-          echo "Xcode project found successfully."
         fi
 
     - name: Check permissions for .xcodeproj
