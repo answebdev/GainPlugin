@@ -74,21 +74,10 @@ jobs:
           exit 1
         fi
 
-    - name: Check permissions for .xcodeproj
+    - name: List available Xcode schemes
       run: |
-        # List the permissions for the .xcodeproj to ensure accessibility
-        ls -l "$GITHUB_WORKSPACE/Builds/MacOSX/GainPlugin.xcodeproj"
-
-    - name: Check current working directory
-      run: |
-        # Output the current working directory for context
-        echo "Current working directory:"
-        pwd
-
-    - name: List all files including hidden ones
-      run: |
-        # List all files including hidden ones in the Builds/MacOSX folder
-        ls -la "$GITHUB_WORKSPACE/Builds/MacOSX"
+        echo "Listing all available schemes in the Xcode project"
+        xcodebuild -project "$GITHUB_WORKSPACE/Builds/MacOSX/GainPlugin.xcodeproj" -list
 
     - name: Create build directory (if it doesn't exist)
       run: |
