@@ -49,6 +49,11 @@ jobs:
           echo "Projucer found at the expected location."
         fi
 
+    - name: Set execute permissions for Projucer
+      run: |
+        # Set executable permissions for Projucer file
+        chmod +x "$GITHUB_WORKSPACE/Tools/Projucer/Projucer.app/Contents/MacOS/Projucer"
+    
     - name: Generate Xcode project using Projucer
       run: |
         cd "$GITHUB_WORKSPACE"
