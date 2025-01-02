@@ -59,11 +59,13 @@ jobs:
         cd "$GITHUB_WORKSPACE"
         # Run Projucer to generate the Xcode project from the .jucer file
         "$GITHUB_WORKSPACE/Tools/Projucer/Projucer.app/Contents/MacOS/Projucer" --resave "$GITHUB_WORKSPACE/GainPlugin.jucer"
-    
-    - name: List files after Projucer run
+
+    - name: List files after Projucer run (debugging)
       run: |
+        # List all files to see if the .xcodeproj file was generated and where it is
+        echo "Listing files in the workspace to check for .xcodeproj"
         ls -la "$GITHUB_WORKSPACE"
-    
+
     - name: Create build directory
       run: |
         # Create the build directory if it doesn't exist
