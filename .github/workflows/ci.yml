@@ -65,7 +65,7 @@ jobs:
         echo "Listing files to verify if .xcodeproj was created"
         ls -R "$GITHUB_WORKSPACE"
         # Ensure the Xcode project is created at the expected location
-        if [ ! -f "$GITHUB_WORKSPACE/GainPlugin.xcodeproj" ]; then
+        if [ ! -f "$GITHUB_WORKSPACE/Builds/MacOSX/GainPlugin.xcodeproj" ]; then
           echo "Error: Xcode project GainPlugin.xcodeproj not found!"
           exit 1
         fi
@@ -77,8 +77,8 @@ jobs:
     - name: Build VST3 Plugin using Xcode
       run: |
         cd "$GITHUB_WORKSPACE/build"
-        # Build the plugin using Xcode CLI
-        xcodebuild -project "$GITHUB_WORKSPACE/GainPlugin.xcodeproj" -scheme "GainPlugin" -configuration Release
+        # Build the plugin using Xcode CLI with the correct path to .xcodeproj
+        xcodebuild -project "$GITHUB_WORKSPACE/Builds/MacOSX/GainPlugin.xcodeproj" -scheme "GainPlugin" -configuration Release
 
     - name: Upload built VST3 plugin
       uses: actions/upload-artifact@v3
