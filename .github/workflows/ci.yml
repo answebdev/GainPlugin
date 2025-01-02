@@ -60,10 +60,19 @@ jobs:
         # Run Projucer to generate the Xcode project from the .jucer file
         "$GITHUB_WORKSPACE/Tools/Projucer/Projucer.app/Contents/MacOS/Projucer" --resave "$GITHUB_WORKSPACE/GainPlugin.jucer"
 
-    - name: List files in the workspace to check for .xcodeproj
+    - name: Verify that the Xcode project is generated
       run: |
-        echo "Listing files in the workspace to check for .xcodeproj"
-        ls -R "$GITHUB_WORKSPACE"  # List files recursively in the workspace
+        echo "Listing files to verify if .xcodeproj was created"
+        ls -R "$GITHUB_WORKSPACE"
+        # Ensure the Xcode project is created at the expected location
+        if [ ! -f "$GITHUB_WORKSPACE/GainPlugin.xcodeproj" ]; then
+          echo "Error: Xcode project GainPlugin.xcodeproj not found!"
+          exit 1
+        fi
+
+    - name: Create build directory (if it doesn't exist)
+      run: |
+        mkdir -p "$GITHUB_WORKSPACE/build/Release"  # Create build/Release directory
 
     - name: Build VST3 Plugin using Xcode
       run: |
