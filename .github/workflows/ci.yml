@@ -60,19 +60,35 @@ jobs:
         # Run Projucer to generate the Xcode project from the .jucer file
         echo "Running Projucer to generate Xcode project"
         "$GITHUB_WORKSPACE/Tools/Projucer/Projucer.app/Contents/MacOS/Projucer" --resave "$GITHUB_WORKSPACE/GainPlugin.jucer"
-        # Check if the Xcode project was generated successfully
-        echo "Listing contents of $GITHUB_WORKSPACE/Builds/MacOSX"
-        ls -R "$GITHUB_WORKSPACE/Builds/MacOSX"  # List the contents of Builds/MacOSX to find .xcodeproj
 
     - name: Verify that the Xcode project is generated
       run: |
         echo "Listing files to verify if .xcodeproj was created"
-        ls -R "$GITHUB_WORKSPACE"
-        # Ensure the Xcode project is created at the expected location
+        ls -R "$GITHUB_WORKSPACE"  # Listing top-level files and subdirectories
+        ls -R "$GITHUB_WORKSPACE/Builds/MacOSX"  # Listing contents of Builds/MacOSX
+        # Check the full path to ensure the project exists
         if [ ! -f "$GITHUB_WORKSPACE/Builds/MacOSX/GainPlugin.xcodeproj" ]; then
           echo "Error: Xcode project GainPlugin.xcodeproj not found!"
           exit 1
+        else
+          echo "Xcode project found successfully."
         fi
+
+    - name: Check permissions for .xcodeproj
+      run: |
+        # List the permissions for the .xcodeproj to ensure accessibility
+        ls -l "$GITHUB_WORKSPACE/Builds/MacOSX/GainPlugin.xcodeproj"
+
+    - name: Check current working directory
+      run: |
+        # Output the current working directory for context
+        echo "Current working directory:"
+        pwd
+
+    - name: List all files including hidden ones
+      run: |
+        # List all files including hidden ones in the Builds/MacOSX folder
+        ls -la "$GITHUB_WORKSPACE/Builds/MacOSX"
 
     - name: Create build directory (if it doesn't exist)
       run: |
