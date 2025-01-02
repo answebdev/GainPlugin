@@ -60,6 +60,10 @@ jobs:
         # Run Projucer to generate the Xcode project from the .jucer file
         "$GITHUB_WORKSPACE/Tools/Projucer/Projucer.app/Contents/MacOS/Projucer" --resave "$GITHUB_WORKSPACE/GainPlugin.jucer"
     
+    - name: List files after Projucer run
+      run: |
+        ls -la "$GITHUB_WORKSPACE"
+    
     - name: Create build directory
       run: |
         # Create the build directory if it doesn't exist
@@ -67,7 +71,7 @@ jobs:
 
     - name: Build VST3 Plugin using Xcode
       run: |
-        cd "$GITHUB_WORKSPACE/build"
+        cd "$GITHUB_WORKSPACE"
         # Build the plugin using Xcode CLI
         xcodebuild -project "$GITHUB_WORKSPACE/GainPlugin.xcodeproj" -scheme "GainPlugin" -configuration Release
 
