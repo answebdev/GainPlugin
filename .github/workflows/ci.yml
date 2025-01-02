@@ -58,7 +58,15 @@ jobs:
       run: |
         cd "$GITHUB_WORKSPACE"
         # Run Projucer to generate the Xcode project from the .jucer file
+        echo "Running Projucer to generate Xcode project"
         "$GITHUB_WORKSPACE/Tools/Projucer/Projucer.app/Contents/MacOS/Projucer" --resave "$GITHUB_WORKSPACE/GainPlugin.jucer"
+        # Check if the Xcode project was generated successfully
+        if [ -f "$GITHUB_WORKSPACE/Builds/MacOSX/GainPlugin.xcodeproj" ]; then
+          echo "Xcode project generated successfully."
+        else
+          echo "Error: Xcode project GainPlugin.xcodeproj not found after running Projucer!"
+          exit 1
+        fi
 
     - name: Verify that the Xcode project is generated
       run: |
