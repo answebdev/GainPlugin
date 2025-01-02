@@ -49,31 +49,20 @@ jobs:
           echo "Projucer found at the expected location."
         fi
 
-    - name: Make Projucer executable
-      run: |
-        # Make Projucer executable
-        chmod +x "$GITHUB_WORKSPACE/Tools/Projucer/Projucer.app/Contents/MacOS/Projucer"
-
     - name: Generate Xcode project using Projucer
       run: |
         cd "$GITHUB_WORKSPACE"
         # Run Projucer to generate the Xcode project from the .jucer file
         "$GITHUB_WORKSPACE/Tools/Projucer/Projucer.app/Contents/MacOS/Projucer" --resave "$GITHUB_WORKSPACE/GainPlugin.jucer"
 
-    - name: List files after Projucer run (debugging)
+    - name: List files in the workspace to check for .xcodeproj
       run: |
-        # List all files to see if the .xcodeproj file was generated and where it is
         echo "Listing files in the workspace to check for .xcodeproj"
-        ls -la "$GITHUB_WORKSPACE"
-
-    - name: Create build directory
-      run: |
-        # Create the build directory if it doesn't exist
-        mkdir -p "$GITHUB_WORKSPACE/build"
+        ls -R "$GITHUB_WORKSPACE"  # List files recursively in the workspace
 
     - name: Build VST3 Plugin using Xcode
       run: |
-        cd "$GITHUB_WORKSPACE"
+        cd "$GITHUB_WORKSPACE/build"
         # Build the plugin using Xcode CLI
         xcodebuild -project "$GITHUB_WORKSPACE/GainPlugin.xcodeproj" -scheme "GainPlugin" -configuration Release
 
