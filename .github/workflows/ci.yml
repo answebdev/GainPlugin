@@ -60,11 +60,16 @@ jobs:
         # Run Projucer to generate the Xcode project from the .jucer file
         "$GITHUB_WORKSPACE/Tools/Projucer/Projucer.app/Contents/MacOS/Projucer" --resave "$GITHUB_WORKSPACE/GainPlugin.jucer"
     
+    - name: Create build directory
+      run: |
+        # Create the build directory if it doesn't exist
+        mkdir -p "$GITHUB_WORKSPACE/build"
+
     - name: Build VST3 Plugin using Xcode
       run: |
         cd "$GITHUB_WORKSPACE/build"
         # Build the plugin using Xcode CLI
-        xcodebuild -project "GainPlugin.xcodeproj" -scheme "GainPlugin" -configuration Release
+        xcodebuild -project "$GITHUB_WORKSPACE/GainPlugin.xcodeproj" -scheme "GainPlugin" -configuration Release
 
     - name: Upload built VST3 plugin
       uses: actions/upload-artifact@v3
